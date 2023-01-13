@@ -51,7 +51,7 @@ client.on('messageCreate', (msg) => {
         msg.channel.send('gal gal <:stronk:986297598598086726>')    
     else if (msg.content.includes('<@1062011166177644576>'))
         msg.reply("WHAT??");
-    // console.log(msg.author.username + ": " + msg.content)    
+    console.log(msg.author.username + ": " + msg.content)    
 })
 
 
