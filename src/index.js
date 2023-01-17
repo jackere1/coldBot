@@ -89,6 +89,47 @@ client.on('interactionCreate', (interaction) => {
             return;
         interaction.reply({ embeds: [embed] });
     }
+
+    else if (interaction.commandName === 'whats') {
+        fetch("https://api.urbandictionary.com/v0/define?term=" + interaction.options.get('word').value)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.list.length) {
+                    interaction.reply(`What the duck is ${interaction.options.get('word').value}? No one knows it\n It is an alien word bruh. Try another one.`)
+                    return;
+                }
+
+                const embed = new EmbedBuilder()
+                    .setTitle(interaction.options.get('word').value)
+                    .setDescription("From urban dictionary👍")
+                    .setColor('#083676')
+                    .setURL(data.list[0].permalink)
+                    .setTimestamp(Date.parse(data.list[0].written_on))
+                    
+                const fields = [];
+                let counter = 1;
+                data.list.slice(0, 1).map(elm => {
+                    let definition = elm.definition;
+                    let example = elm.example;
+                    if (definition.length > 500)
+                        definition = definition.substr(0, 500) + "...";
+                    if (example.length > 500)
+                        example = example.substr(0, 500) + "...";
+                    example = example.replace(/[\[\]]+/g, '');
+                    // console.log(elm.definition); 
+                    fields.push({
+                        name: "Definition no." + counter,
+                        value: definition.replace(/[\[\]']+/g, '**'), inline: true
+                    })
+                    fields.push({ name: "Example", value: `_${example}_` })
+                    counter++;
+                })
+                embed.addFields(...fields);
+                interaction.reply({ embeds: [embed] });
+            })
+    }
 })
 
 client.login(process.env.TOKEN);
+
+//Under CTRL

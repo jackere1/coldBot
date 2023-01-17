@@ -46,6 +46,18 @@ const commands = [
         name: 'gif',
         description: 'Sends an embed.'
     },
+    {
+        name: 'whats',
+        description: 'Will search the word you asking from whole internet.',
+        options: [
+            {
+                name: 'word',
+                description: 'word you want to look up',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            }
+        ]
+    }
 
 ];
 
