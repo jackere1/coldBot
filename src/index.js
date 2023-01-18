@@ -108,7 +108,7 @@ client.on('interactionCreate', (interaction) => {
                     
                 const fields = [];
                 let counter = 1;
-                data.list.slice(0, 1).map(elm => {
+                data.list.slice(0, 2).map(elm => {
                     let definition = elm.definition;
                     let example = elm.example;
                     if (definition.length > 500)
@@ -124,6 +124,40 @@ client.on('interactionCreate', (interaction) => {
                     fields.push({ name: "Example", value: `_${example}_` })
                     counter++;
                 })
+                embed.addFields(...fields);
+                interaction.reply({ embeds: [embed] });
+            })
+    }
+    else if (interaction.commandName === 'explain') {
+        fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${interaction.options.get('word').value}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!Array.isArray(data)) {
+                    interaction.reply(`Can not find word: **${interaction.options.get('word').value}**.\nTry searching from urban dictionaries by using **/whats** command.`);
+                    return;
+                }
+
+                const embed = new EmbedBuilder()
+                    .setTitle(interaction.options.get('word').value)
+                    .setColor("LightGrey")
+                
+                let desc = "";
+                if (data[0].hasOwnProperty('phonetic'))
+                    desc += `phonetic: ${data[0].phonetic}`;
+                else if(data[0].hasOwnProperty('phonetics'))
+                    for (let i = 0; i < data[0].phonetics.length; i++) {
+                        if (data[0].phonetics[i].hasOwnProperty('text')) {
+                            desc += 'phonetic: ' + data[0].phonetics[i].text;
+                            break;
+                        }
+                    }
+                desc && embed.setDescription(desc);
+
+                const fields = [];                
+                data[0].meanings.slice(0, 2).map(elm => {
+                    fields.push({ name: elm.partOfSpeech, value: elm.definitions[0].definition })
+                })
+                
                 embed.addFields(...fields);
                 interaction.reply({ embeds: [embed] });
             })

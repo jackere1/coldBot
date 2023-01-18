@@ -57,6 +57,18 @@ const commands = [
                 required: true
             }
         ]
+    },
+    {
+        name: 'explain',
+        description: 'Find out formal meaning of the word from official dictionaries.',
+        options: [
+            {
+                name: 'word',
+                description: 'word you looking for',
+                type: ApplicationCommandOptionType.String,
+                required: true
+            }
+        ]
     }
 
 ];
