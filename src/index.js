@@ -1,5 +1,6 @@
 require('dotenv').config(); 
-const { Client, IntentsBitField, EmbedBuilder, InteractionCollector } = require('discord.js');
+const { Client, IntentsBitField, EmbedBuilder, InteractionCollector, Embed } = require('discord.js');
+const { isDataView } = require('util/types');
 
 //jacker: 778629880980045844
 //Cold bot: 1062011166177644576
@@ -56,6 +57,39 @@ client.on('messageCreate', (msg) => {
 
 
 client.on('interactionCreate', (interaction) => {
+
+    /* gives roles boys */
+    if (interaction.isButton()) {
+        const role = interaction.guild.roles.cache.get(interaction.customId);
+        console.log(role.name);
+        const hasRole = interaction.member.roles.cache.has(role.id)
+        
+        if (role != undefined) {
+            if (hasRole) {
+                try {
+                    interaction.member.roles.remove(role);
+                } catch (err) {
+                    console.log(err);
+                }
+                interaction.reply({ content: `Your role ${role} has been removed`, ephemeral: true });
+                setTimeout(() => {
+                    interaction.deleteReply();
+                }, 3000)
+                return;
+            }
+            else {
+                interaction.member.roles.add(role);
+                interaction.reply({ content: `Your role ${role} has been added`, ephemeral: true });
+                setTimeout(() => {
+                    interaction.deleteReply();
+                }, 3000)
+                return;
+            }
+            
+        }
+        
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
     if (interaction.commandName === 'add') {
@@ -83,10 +117,17 @@ client.on('interactionCreate', (interaction) => {
             .setTitle(`${bulliedBy.username} is bullying ${bullied.user.username}`)
             .setDescription(`Poor <@${bullied.user?.id}>`)
             .setColor('Purple')
-            .setImage('https://media0.giphy.com/media/3o7abw6pxR0swnRrUY/200w.gif?cid=6c09b952y0fk75unsh5vioy4dqjocc4lkyxp1srcit2c9l9b&rid=200w.gif&ct=g');
+            .setImage('https://media.tenor.com/WFy_g97MHuQAAAAi/capoo-bug-cat.gif');
 
-        if (bullied.user.id === '778629880980045844')
+        if (bullied.user.id === '778629880980045844') {
+            interaction.reply({ embeds: [new EmbedBuilder()
+                .setTitle(`${bullied.user.username} is bullying ${bulliedBy.username}`)
+                .setDescription(`Poor <@${bulliedBy.id}>`)
+                .setColor('Purple')
+                .setImage('https://media.tenor.com/WFy_g97MHuQAAAAi/capoo-bug-cat.gif')]})
             return;
+        }
+            
         interaction.reply({ embeds: [embed] });
     }
 
@@ -161,6 +202,33 @@ client.on('interactionCreate', (interaction) => {
                 embed.addFields(...fields);
                 interaction.reply({ embeds: [embed] });
             })
+    }
+    else if (interaction.commandName === 'peepee') {
+        const ppOf = interaction.user;
+        let ppStr = '8';
+        let ppLen;
+        if (ppOf.username === 'jacker_e')
+            ppLen = 10;
+        else {
+            ppLen = Math.abs(Math.random() * 10);
+        }
+        for (let i = 0; i < ppLen; i++)
+            ppStr += '=';
+        ppStr += 'D';
+
+        if (ppLen >= 8)
+            ppStr += "<:gigachad:986656981794312263>";
+        else if (ppLen >= 4)
+            ppStr += "<:cheems:986292489373761646>";
+        else {
+            ppStr += "<:gojo3:962627538797092914>";
+        }
+        const embed = new EmbedBuilder()
+            .setColor('#FFC0CB')
+            .setTitle(ppOf.username + `'s peepee size in inches`)
+            .setDescription(ppStr);
+
+        interaction.reply({embeds: [embed]})
     }
 })
 

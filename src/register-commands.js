@@ -69,6 +69,10 @@ const commands = [
                 required: true
             }
         ]
+    },
+    {
+        name: "peepee",
+        description: 'Your true pp size.',
     }
 
 ];
