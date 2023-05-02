@@ -1,6 +1,8 @@
 require('dotenv').config(); 
 const { Client, IntentsBitField, EmbedBuilder, InteractionCollector, Embed } = require('discord.js');
-const { isDataView } = require('util/types');
+// const { isDataView } = require('util/types');
+const { Configuration, OpenAIApi } = require('openai');
+
 
 //jacker: 778629880980045844
 //Cold bot: 1062011166177644576
@@ -18,6 +20,11 @@ client.on('ready', (c) => {
     console.log(`✔ ${c.user.tag} is online.`);
 })
 
+const configuration = new Configuration({
+    apiKey: process.env.API_KEY,
+});
+const openai = new OpenAIApi(configuration);
+
 client.on('messageCreate', (msg) => {
 
     if (msg.author.bot) return;
@@ -28,10 +35,6 @@ client.on('messageCreate', (msg) => {
         else
             msg.reply(`What you want ${msg.author}?`);
     }
-    else if (msg.content === "Say sth <@1062011166177644576>") {
-        msg.reply("Welcome King<:gosdamin:836600183907024926>");
-    }
-
     else if (msg.content.includes('<@1062011166177644576> say')) {
         msg.channel.send(msg.content.replace("<@1062011166177644576> say", ""));
     }
@@ -52,6 +55,40 @@ client.on('messageCreate', (msg) => {
         msg.channel.send('gal gal <:stronk:986297598598086726>')    
     else if (msg.content.includes('<@1062011166177644576>'))
         msg.reply("WHAT??");
+    else if (msg.channel.id === '1094558133352923246') {
+        (async () => {
+            await msg.channel.sendTyping();
+            let conversationLog = [{
+                role: 'user',
+                content: msg.content
+            }];
+            
+            let prevMessages = await msg.channel.messages.fetch({ limit: 15 });
+            prevMessages.reverse();
+            
+            prevMessages.forEach(prevMsg => {
+                if (msg.content.startsWith('!')) return;
+                if (prevMsg.author.id !== client.user.id && msg.author.bot) return;
+                if (prevMsg.author.id !== msg.author.id) return;
+
+                conversationLog.push({
+                    role: 'user',
+                    content: prevMsg.content
+                });
+            });
+
+            msg.channel.send('Please be patient due to network. It may take several seconds depending on your prompt.');
+
+            const result = await openai.createChatCompletion({
+                model: 'gpt-3.5-turbo',
+                messages: conversationLog,
+            }).catch(err => {
+                console.log(err);
+                msg.reply('Our server has maintenance error. Try again later.');
+            });
+            msg.reply(result.data.choices[0].message);
+        })()
+    }
     console.log(msg.author.username + ": " + msg.content)    
 })
 
@@ -232,6 +269,6 @@ client.on('interactionCreate', (interaction) => {
     }
 })
 
-client.login(process.env.TOKEN);
 
-//Under CTRL
+
+client.login(process.env.TOKEN);
